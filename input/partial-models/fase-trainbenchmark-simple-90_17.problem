@@ -1,0 +1,605 @@
+import builtin::view.
+
+@color(hex="#ffffff")
+abstract class TrackElement {
+    TrackElement[1..3] connectsTo opposite connectsTo
+    Sensor[] monitoredBy opposite monitors
+}
+
+@color(hex="#218380")
+class Segment extends TrackElement {
+}
+
+@color(hex="#8f2d56")
+class Switch extends TrackElement {
+    TrackElement straight
+    TrackElement diverging
+}
+class Sensor {
+    TrackElement[] monitors opposite monitoredBy
+}
+class Region {
+    contains Sensor[] sensors
+    contains TrackElement[] elements
+}
+
+
+error sameStraightDiverging(switch, target) <->
+    straight(switch,target),
+    diverging(switch,target).
+
+error noDiverging(switch) <->
+    Switch(switch),
+    !diverging(switch,_).
+
+error noStraight(switch) <->
+    Switch(switch),
+    !straight(switch,_).
+
+error tooManyConncetions(segment) <->
+    Segment(segment),
+    count{connectsTo(segment, _)} > 2.
+
+
+error selfLoop(e) <->
+    TrackElement(e),
+    connectsTo(e, e)
+;
+    Switch(e),
+    straight(e, e)
+;
+    Switch(e),
+    diverging(e, e).
+
+
+error underconnectedSwitch(sw) <->
+    Switch(sw),
+    !switchWithTwoConnections(sw, _, _).
+
+pred switchWithTwoConnections(sw, te1, te2) <->
+    Switch(sw),
+    connectsTo(sw, te1),
+    connectsTo(sw, te2),
+    te1 != te2.
+
+
+error sensorWithoutElement(sensor) <->
+    Sensor(sensor),
+    !monitors(sensor, _).
+
+error sensorMonitorsMultipleSwitches(sensor, sw1, sw2) <->
+    Sensor(sensor),
+    monitors(sensor, sw1),
+    monitors(sensor, sw2),
+    Switch(sw1),
+    Switch(sw2),
+    sw1 != sw2.
+
+error duplicateMonitors(region, sensor1, sensor2, te) <->
+    Region(region),
+    sensors(region, sensor1),
+    sensors(region, sensor2),
+    sensor1 != sensor2,
+    monitors(sensor1, te),
+    monitors(sensor2, te).
+
+error emptyRegion(region) <->
+    Region(region),
+    !elements(region, _).
+
+
+error connectedSegments(sensor, segment1, segment2, segment3, segment4, segment5, segment6) <->
+    connectsTo(segment1, segment2),
+    connectsTo(segment2, segment3),
+    connectsTo(segment3, segment4),
+    connectsTo(segment4, segment5),
+    connectsTo(segment5, segment6),
+    monitoredBy(segment1, sensor),
+    monitoredBy(segment2, sensor),
+    monitoredBy(segment3, sensor),
+    monitoredBy(segment4, sensor),
+    monitoredBy(segment5, sensor),
+    monitoredBy(segment6, sensor).
+
+
+error switchMonitored(sw) <-> 
+    Switch(sw),
+    !monitoredBy(sw, _).
+
+declare sensor1, region1, sensor2, region2, segment1, sensor3, sensor4,
+	region3, region4, segment2, segment3, segment4, switch1, region5, switch2,
+	segment5, sensor5, region6, segment6, sensor6, sensor7, segment7, switch3,
+	sensor8.
+declare segment8.
+declare sensor9, sensor10, segment9, sensor11, sensor12.
+declare segment10, sensor13, segment11, sensor14, region7, switch4, segment12.
+declare segment13, sensor15, sensor16.
+declare switch5, sensor17, sensor18, segment14, sensor19.
+declare segment15, sensor20, segment16, sensor21, sensor22, sensor23,
+	segment17, switch6.
+declare segment18, segment19.
+declare segment20, segment21, sensor24, sensor25, sensor26.
+declare segment22, segment23, sensor27, sensor28, sensor29.
+declare sensor30, sensor31, segment24, segment25, sensor32.
+declare segment26, segment27, sensor33, segment28, switch7.
+declare region8, segment29, segment30, sensor34, sensor35.
+declare switch8, sensor36, region9, segment31, segment32.
+declare sensor37, segment33, sensor38, sensor39, sensor40.
+Sensor(sensor1).
+Region(region1).
+Sensor(sensor2).
+Segment(segment1).
+Sensor(sensor3).
+Region(region3).
+Segment(segment2).
+Segment(segment3).
+Segment(segment4).
+Switch(switch1).
+Region(region5).
+Switch(switch2).
+Segment(segment5).
+Sensor(sensor5).
+Region(region6).
+Sensor(sensor7).
+Segment(segment7).
+Switch(switch3).
+Sensor(sensor8).
+Segment(segment8).
+Sensor(sensor9).
+Sensor(sensor10).
+Switch(segment9).
+Sensor(sensor11).
+Sensor(sensor12).
+Segment(segment10).
+Sensor(sensor13).
+Segment(segment11).
+Sensor(sensor14).
+Region(region7).
+Switch(switch4).
+Segment(segment13).
+Sensor(sensor15).
+Sensor(sensor16).
+Switch(switch5).
+Sensor(sensor17).
+Sensor(sensor18).
+Segment(segment14).
+Sensor(sensor19).
+Segment(segment15).
+Sensor(sensor20).
+Segment(segment16).
+Sensor(sensor21).
+Sensor(sensor22).
+Sensor(sensor23).
+Segment(segment17).
+Switch(switch6).
+Segment(segment18).
+Segment(segment19).
+Segment(segment20).
+Segment(segment21).
+Sensor(sensor24).
+Sensor(sensor25).
+Sensor(sensor26).
+Segment(segment22).
+Segment(segment23).
+Sensor(sensor27).
+Sensor(sensor28).
+Sensor(sensor29).
+Sensor(sensor30).
+Sensor(sensor31).
+Segment(segment24).
+Segment(segment25).
+Sensor(sensor32).
+Segment(segment26).
+Segment(segment27).
+Segment(segment28).
+Switch(switch7).
+Region(region8).
+Segment(segment29).
+Segment(segment30).
+Sensor(sensor34).
+Sensor(sensor35).
+Switch(switch8).
+Sensor(sensor36).
+Region(region9).
+Segment(segment31).
+Segment(segment32).
+Sensor(sensor37).
+Segment(segment33).
+Sensor(sensor38).
+Sensor(sensor39).
+sensors(region1, sensor1).
+sensors(region1, sensor2).
+sensors(region1, sensor3).
+sensors(region1, sensor4).
+sensors(region1, sensor25).
+sensors(region2, sensor12).
+sensors(region2, sensor15).
+sensors(region2, sensor18).
+sensors(region2, sensor24).
+sensors(region2, sensor37).
+sensors(region3, sensor5).
+sensors(region3, sensor10).
+sensors(region3, sensor16).
+sensors(region3, sensor20).
+sensors(region3, sensor28).
+sensors(region4, sensor6).
+sensors(region4, sensor9).
+sensors(region4, sensor13).
+sensors(region4, sensor17).
+sensors(region4, sensor27).
+sensors(region4, sensor30).
+sensors(region4, sensor36).
+sensors(region5, sensor7).
+sensors(region5, sensor19).
+sensors(region5, sensor21).
+sensors(region5, sensor23).
+sensors(region5, sensor31).
+sensors(region6, sensor8).
+sensors(region6, sensor29).
+sensors(region6, sensor32).
+sensors(region6, sensor38).
+sensors(region7, sensor14).
+sensors(region7, sensor33).
+sensors(region8, sensor34).
+sensors(region8, sensor35).
+sensors(region8, sensor39).
+elements(region1, segment1).
+elements(region1, segment4).
+elements(region1, segment14).
+elements(region1, segment18).
+elements(region1, segment20).
+elements(region1, segment27).
+elements(region1, segment28).
+elements(region2, segment5).
+elements(region2, segment10).
+elements(region2, switch4).
+elements(region2, segment12).
+elements(region3, switch2).
+elements(region3, segment8).
+elements(region3, segment17).
+elements(region3, segment25).
+elements(region3, segment31).
+elements(region3, segment33).
+elements(region4, segment2).
+elements(region4, segment9).
+elements(region4, segment13).
+elements(region5, segment6).
+elements(region5, switch3).
+elements(region5, segment23).
+elements(region6, switch1).
+elements(region6, segment7).
+elements(region6, segment11).
+elements(region6, switch6).
+elements(region6, segment22).
+elements(region6, segment26).
+elements(region6, switch7).
+elements(region7, switch5).
+elements(region7, segment16).
+elements(region7, segment19).
+elements(region7, segment30).
+elements(region8, segment29).
+elements(region8, switch8).
+elements(region9, segment32).
+monitoredBy(segment1, sensor2).
+monitoredBy(segment1, sensor7).
+monitoredBy(segment1, sensor10).
+monitoredBy(segment1, sensor17).
+monitoredBy(segment2, sensor5).
+monitoredBy(segment2, sensor7).
+monitoredBy(segment2, sensor8).
+monitoredBy(segment2, sensor9).
+monitoredBy(segment2, sensor15).
+monitoredBy(segment2, sensor35).
+monitoredBy(segment3, sensor2).
+monitoredBy(segment3, sensor7).
+monitoredBy(segment3, sensor9).
+monitoredBy(segment3, sensor11).
+monitoredBy(segment3, sensor12).
+monitoredBy(segment3, sensor26).
+monitoredBy(segment4, sensor3).
+monitoredBy(segment4, sensor8).
+monitoredBy(segment4, sensor12).
+monitoredBy(segment4, sensor13).
+monitoredBy(segment4, sensor14).
+monitoredBy(segment4, sensor23).
+monitoredBy(switch1, sensor3).
+monitoredBy(switch1, sensor6).
+monitoredBy(switch1, sensor20).
+monitoredBy(switch2, sensor14).
+monitoredBy(switch2, sensor24).
+monitoredBy(switch2, sensor30).
+monitoredBy(switch2, sensor32).
+monitoredBy(segment5, sensor2).
+monitoredBy(segment5, sensor5).
+monitoredBy(segment5, sensor11).
+monitoredBy(segment5, sensor12).
+monitoredBy(segment5, sensor13).
+monitoredBy(segment6, sensor4).
+monitoredBy(segment6, sensor5).
+monitoredBy(segment6, sensor6).
+monitoredBy(segment6, sensor8).
+monitoredBy(segment6, sensor14).
+monitoredBy(segment6, sensor15).
+monitoredBy(segment6, sensor19).
+monitoredBy(segment6, sensor35).
+monitoredBy(segment7, sensor3).
+monitoredBy(segment7, sensor5).
+monitoredBy(segment7, sensor6).
+monitoredBy(segment7, sensor8).
+monitoredBy(segment7, sensor12).
+monitoredBy(segment7, sensor14).
+monitoredBy(segment7, sensor21).
+monitoredBy(switch3, sensor2).
+monitoredBy(switch3, sensor7).
+monitoredBy(switch3, sensor9).
+monitoredBy(switch3, sensor10).
+monitoredBy(switch3, sensor11).
+monitoredBy(switch3, sensor34).
+monitoredBy(segment8, sensor7).
+monitoredBy(segment8, sensor10).
+monitoredBy(segment8, sensor12).
+monitoredBy(segment8, sensor25).
+monitoredBy(segment8, sensor26).
+monitoredBy(segment8, sensor27).
+monitoredBy(segment8, sensor38).
+monitoredBy(segment9, sensor1).
+monitoredBy(segment9, sensor26).
+monitoredBy(segment10, sensor4).
+monitoredBy(segment10, sensor5).
+monitoredBy(segment10, sensor14).
+monitoredBy(segment10, sensor18).
+monitoredBy(segment10, sensor22).
+monitoredBy(segment10, sensor31).
+monitoredBy(segment10, sensor34).
+monitoredBy(segment11, sensor3).
+monitoredBy(segment11, sensor7).
+monitoredBy(segment11, sensor8).
+monitoredBy(segment11, sensor9).
+monitoredBy(segment11, sensor10).
+monitoredBy(segment11, sensor12).
+monitoredBy(segment11, sensor14).
+monitoredBy(segment11, sensor34).
+monitoredBy(switch4, sensor13).
+monitoredBy(switch4, sensor21).
+monitoredBy(switch4, sensor28).
+monitoredBy(switch4, sensor29).
+monitoredBy(switch4, sensor39).
+monitoredBy(switch4, sensor40).
+monitoredBy(segment12, sensor2).
+monitoredBy(segment12, sensor11).
+monitoredBy(segment12, sensor16).
+monitoredBy(segment13, sensor1).
+monitoredBy(segment13, sensor7).
+monitoredBy(segment13, sensor9).
+monitoredBy(segment13, sensor11).
+monitoredBy(segment13, sensor12).
+monitoredBy(segment13, sensor34).
+monitoredBy(switch5, sensor4).
+monitoredBy(switch5, sensor16).
+monitoredBy(switch5, sensor17).
+monitoredBy(switch5, sensor18).
+monitoredBy(segment14, sensor4).
+monitoredBy(segment14, sensor13).
+monitoredBy(segment14, sensor14).
+monitoredBy(segment14, sensor18).
+monitoredBy(segment14, sensor23).
+monitoredBy(segment15, sensor8).
+monitoredBy(segment15, sensor10).
+monitoredBy(segment15, sensor13).
+monitoredBy(segment15, sensor14).
+monitoredBy(segment15, sensor18).
+monitoredBy(segment15, sensor21).
+monitoredBy(segment15, sensor35).
+monitoredBy(segment16, sensor1).
+monitoredBy(segment16, sensor7).
+monitoredBy(segment16, sensor9).
+monitoredBy(segment16, sensor10).
+monitoredBy(segment16, sensor15).
+monitoredBy(segment16, sensor22).
+monitoredBy(segment17, sensor1).
+monitoredBy(segment17, sensor7).
+monitoredBy(segment17, sensor8).
+monitoredBy(segment17, sensor14).
+monitoredBy(segment17, sensor16).
+monitoredBy(segment17, sensor17).
+monitoredBy(segment17, sensor18).
+monitoredBy(segment17, sensor34).
+monitoredBy(switch6, sensor12).
+monitoredBy(switch6, sensor23).
+monitoredBy(switch6, sensor25).
+monitoredBy(switch6, sensor27).
+monitoredBy(segment18, sensor16).
+monitoredBy(segment18, sensor19).
+monitoredBy(segment18, sensor22).
+monitoredBy(segment18, sensor24).
+monitoredBy(segment18, sensor25).
+monitoredBy(segment18, sensor26).
+monitoredBy(segment19, sensor4).
+monitoredBy(segment19, sensor5).
+monitoredBy(segment19, sensor8).
+monitoredBy(segment19, sensor15).
+monitoredBy(segment19, sensor17).
+monitoredBy(segment19, sensor21).
+monitoredBy(segment19, sensor26).
+monitoredBy(segment19, sensor34).
+monitoredBy(segment20, sensor2).
+monitoredBy(segment20, sensor9).
+monitoredBy(segment20, sensor11).
+monitoredBy(segment20, sensor12).
+monitoredBy(segment20, sensor14).
+monitoredBy(segment20, sensor20).
+monitoredBy(segment20, sensor31).
+monitoredBy(segment20, sensor34).
+monitoredBy(segment21, sensor3).
+monitoredBy(segment21, sensor5).
+monitoredBy(segment21, sensor19).
+monitoredBy(segment21, sensor33).
+monitoredBy(segment21, sensor39).
+monitoredBy(segment22, sensor19).
+monitoredBy(segment22, sensor24).
+monitoredBy(segment22, sensor25).
+monitoredBy(segment22, sensor26).
+monitoredBy(segment22, sensor35).
+monitoredBy(segment22, sensor36).
+monitoredBy(segment23, sensor2).
+monitoredBy(segment23, sensor6).
+monitoredBy(segment23, sensor8).
+monitoredBy(segment23, sensor23).
+monitoredBy(segment23, sensor35).
+monitoredBy(segment24, sensor13).
+monitoredBy(segment24, sensor14).
+monitoredBy(segment24, sensor18).
+monitoredBy(segment24, sensor20).
+monitoredBy(segment24, sensor23).
+monitoredBy(segment24, sensor32).
+monitoredBy(segment25, sensor15).
+monitoredBy(segment25, sensor20).
+monitoredBy(segment25, sensor27).
+monitoredBy(segment25, sensor31).
+monitoredBy(segment25, sensor33).
+monitoredBy(segment26, sensor2).
+monitoredBy(segment26, sensor5).
+monitoredBy(segment26, sensor8).
+monitoredBy(segment26, sensor17).
+monitoredBy(segment26, sensor18).
+monitoredBy(segment26, sensor21).
+monitoredBy(segment26, sensor26).
+monitoredBy(segment27, sensor4).
+monitoredBy(segment27, sensor16).
+monitoredBy(segment27, sensor22).
+monitoredBy(segment27, sensor30).
+monitoredBy(segment28, sensor3).
+monitoredBy(segment28, sensor13).
+monitoredBy(segment28, sensor15).
+monitoredBy(segment28, sensor20).
+monitoredBy(segment28, sensor32).
+monitoredBy(switch7, sensor31).
+monitoredBy(switch7, sensor33).
+monitoredBy(switch7, sensor35).
+monitoredBy(switch7, sensor37).
+monitoredBy(segment29, sensor7).
+monitoredBy(segment29, sensor9).
+monitoredBy(segment29, sensor16).
+monitoredBy(segment29, sensor25).
+monitoredBy(segment29, sensor33).
+monitoredBy(segment29, sensor35).
+monitoredBy(segment30, sensor6).
+monitoredBy(segment30, sensor14).
+monitoredBy(segment30, sensor31).
+monitoredBy(segment30, sensor32).
+monitoredBy(segment31, sensor13).
+monitoredBy(segment31, sensor21).
+monitoredBy(segment31, sensor32).
+monitoredBy(segment31, sensor37).
+monitoredBy(segment32, sensor29).
+monitoredBy(segment32, sensor30).
+monitoredBy(segment32, sensor37).
+monitoredBy(segment33, sensor7).
+monitoredBy(segment33, sensor14).
+monitoredBy(segment33, sensor22).
+straight(switch1, switch2).
+straight(switch2, segment5).
+straight(switch3, segment27).
+straight(segment9, segment11).
+straight(switch4, segment8).
+straight(switch5, segment4).
+straight(switch7, switch1).
+straight(switch8, segment4).
+diverging(switch1, segment2).
+diverging(switch2, segment2).
+diverging(switch3, segment6).
+diverging(segment9, segment8).
+diverging(switch4, segment25).
+diverging(switch5, segment5).
+diverging(switch6, segment3).
+diverging(switch7, segment26).
+connectsTo(segment1, segment4).
+connectsTo(segment1, switch1).
+connectsTo(segment2, switch2).
+connectsTo(segment2, segment9).
+connectsTo(segment3, switch1).
+connectsTo(segment4, segment1).
+connectsTo(switch1, segment1).
+connectsTo(switch1, segment3).
+connectsTo(switch1, segment5).
+connectsTo(switch2, segment2).
+connectsTo(switch2, segment3).
+connectsTo(switch2, segment5).
+connectsTo(segment5, switch1).
+connectsTo(segment5, switch2).
+connectsTo(segment6, switch3).
+connectsTo(segment6, segment8).
+connectsTo(segment7, switch3).
+connectsTo(segment7, segment9).
+connectsTo(switch3, segment4).
+connectsTo(switch3, segment6).
+connectsTo(segment8, segment6).
+connectsTo(segment8, segment10).
+connectsTo(segment9, segment2).
+connectsTo(segment9, segment7).
+connectsTo(segment9, segment11).
+connectsTo(segment10, segment8).
+connectsTo(segment10, switch4).
+connectsTo(segment11, switch5).
+connectsTo(switch4, segment10).
+connectsTo(switch4, segment12).
+connectsTo(switch4, segment13).
+connectsTo(segment12, switch4).
+connectsTo(segment12, segment14).
+connectsTo(segment13, switch4).
+connectsTo(segment13, switch5).
+connectsTo(switch5, segment11).
+connectsTo(switch5, segment13).
+connectsTo(switch5, segment16).
+connectsTo(segment14, segment12).
+connectsTo(segment14, segment16).
+connectsTo(segment15, switch6).
+connectsTo(segment15, segment18).
+connectsTo(segment16, switch5).
+connectsTo(segment16, segment14).
+connectsTo(segment17, switch6).
+connectsTo(segment17, segment21).
+connectsTo(switch6, segment15).
+connectsTo(switch6, segment17).
+connectsTo(switch6, segment19).
+connectsTo(segment18, segment15).
+connectsTo(segment18, segment20).
+connectsTo(segment19, switch6).
+connectsTo(segment20, segment18).
+connectsTo(segment20, segment22).
+connectsTo(segment21, segment17).
+connectsTo(segment21, segment23).
+connectsTo(segment22, segment20).
+connectsTo(segment22, segment24).
+connectsTo(segment23, segment21).
+connectsTo(segment23, segment25).
+connectsTo(segment24, segment19).
+connectsTo(segment24, segment22).
+connectsTo(segment25, segment23).
+connectsTo(segment25, segment27).
+connectsTo(segment26, switch7).
+connectsTo(segment26, segment30).
+connectsTo(segment27, segment25).
+connectsTo(segment27, switch7).
+connectsTo(segment28, switch7).
+connectsTo(segment28, segment29).
+connectsTo(switch7, segment26).
+connectsTo(switch7, segment27).
+connectsTo(switch7, segment28).
+connectsTo(segment29, segment31).
+connectsTo(segment30, segment26).
+connectsTo(segment30, segment32).
+connectsTo(switch8, segment31).
+connectsTo(switch8, segment32).
+connectsTo(switch8, segment33).
+connectsTo(segment31, segment29).
+connectsTo(segment32, segment30).
+connectsTo(segment32, switch8).
+connectsTo(segment33, switch8).
+
+default !connectsTo(*, *).
+?connectsTo(*, Segment::new).
+?connectsTo(Segment::new, *).
+
+default !monitoredBy(*, *).
+?monitoredBy(Sensor::new, *).

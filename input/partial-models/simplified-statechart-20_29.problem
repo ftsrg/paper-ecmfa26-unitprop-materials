@@ -1,0 +1,96 @@
+import builtin::view.
+
+
+class State {
+}
+atom idle,seeding.
+
+class Transition {
+    Label[1] label 
+    State[1] source
+    State[1] target
+}
+
+enum Label {
+    CANCEL, START, SHARE, RESTART, COMPLETED, PEERSDONE
+}
+
+@show
+error pred HC1(t1, t2) <->
+    label(t1,l),
+    label(t2,l),
+    t1 != t2,
+    source(t1, s),
+    source(t2, s).
+
+@show
+error pred HC2(s) <->
+    State(s),
+    !source(_, s).
+
+pred hasTransition(s1, s2) <->
+    source(t, s1),
+    target(t, s2).
+    
+@show
+error pred SC1(i, s) <->
+    i == idle,
+    s  == seeding,
+    !hasTransition(i, s).
+
+pred hasCancle(s) <->
+    source(t, s),
+    target(t, i),
+    label(t,CANCEL),
+    i == idle.    
+
+@show
+error pred SC2(s) <->
+    State(s),
+    !hasCancle(s).
+
+declare transition1, transition2, transition3, transition4, transition5,
+	transition6, transition7, transition8, state1, transition9, transition10,
+	transition11.
+State(idle).
+State(seeding).
+Transition(transition1).
+Transition(transition3).
+Transition(transition4).
+Transition(transition5).
+Transition(transition7).
+Transition(transition8).
+State(state1).
+Transition(transition9).
+Transition(transition10).
+Transition(transition11).
+label(transition1, COMPLETED).
+label(transition2, PEERSDONE).
+label(transition3, RESTART).
+label(transition4, CANCEL).
+label(transition5, PEERSDONE).
+label(transition7, CANCEL).
+label(transition8, CANCEL).
+label(transition9, PEERSDONE).
+label(transition10, COMPLETED).
+label(transition11, SHARE).
+source(transition1, idle).
+source(transition2, seeding).
+source(transition3, idle).
+source(transition4, idle).
+source(transition5, idle).
+source(transition6, seeding).
+source(transition7, seeding).
+source(transition8, state1).
+source(transition9, state1).
+source(transition10, seeding).
+source(transition11, seeding).
+target(transition1, seeding).
+target(transition3, idle).
+target(transition4, idle).
+target(transition5, seeding).
+target(transition6, seeding).
+target(transition7, idle).
+target(transition8, idle).
+target(transition10, state1).
+target(transition11, idle).

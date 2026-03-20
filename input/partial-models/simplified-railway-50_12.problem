@@ -1,0 +1,255 @@
+import builtin::view.
+
+@color(hex="#ffffff")
+abstract class TrackElement {
+    TrackElement[1..3] connectsTo opposite connectsTo
+}
+
+@color(hex="#218380")
+class Segment extends TrackElement {
+}
+
+@color(hex="#8f2d56")
+class Switch extends TrackElement {
+    TrackElement straight
+    TrackElement diverging
+}
+
+
+error sameStraightDiverging(switch, target) <->
+    straight(switch,target),
+    diverging(switch,target).
+
+error noDiverging(switch) <->
+    Switch(switch),
+    !diverging(switch,_).
+
+error noStraight(switch) <->
+    Switch(switch),
+    !straight(switch,_).
+
+error tooManyConncetions(segment) <->
+    Segment(segment),
+    count{connectsTo(segment, _)} > 2.
+
+
+error selfLoop(e) <->
+    TrackElement(e),
+    connectsTo(e, e)
+;
+    Switch(e),
+    straight(e, e)
+;
+    Switch(e),
+    diverging(e, e).
+    
+
+error underconnectedSwitch(sw) <->
+    Switch(sw),
+    !switchWithTwoConnections(sw, _, _).
+
+pred switchWithTwoConnections(sw, te1, te2) <->
+    Switch(sw),
+    connectsTo(sw, te1),
+    connectsTo(sw, te2),
+    te1 != te2.
+
+declare segment1, segment2, segment3, segment4, segment5, segment6, segment7,
+	segment8, segment9, switch1, switch2, segment10, switch3, switch4,
+	segment11, switch5, segment12, segment13, switch6, switch7.
+declare segment14, segment15, segment16, segment17, segment18, switch8.
+declare switch9, segment19, segment20, segment21.
+declare switch10, segment22, segment23, segment24, switch11.
+declare switch12, switch13, segment25, segment26, segment27.
+declare segment28, segment29, segment30, segment31, segment32, switch14.
+declare segment33, segment34, switch15, segment35.
+Segment(segment1).
+Switch(segment2).
+Switch(segment3).
+Segment(segment4).
+Segment(segment5).
+Segment(segment6).
+Switch(segment7).
+Switch(segment8).
+Segment(segment9).
+Switch(switch1).
+Switch(switch2).
+Switch(segment10).
+Switch(switch3).
+Switch(switch4).
+Segment(segment11).
+Switch(switch5).
+Switch(segment12).
+Segment(segment13).
+Switch(switch6).
+Switch(switch7).
+Segment(segment14).
+Segment(segment15).
+Segment(segment16).
+Segment(segment17).
+Switch(segment18).
+Switch(switch8).
+Switch(switch9).
+Segment(segment19).
+Segment(segment21).
+Switch(switch10).
+Segment(segment22).
+Segment(segment23).
+Segment(segment24).
+Switch(switch11).
+Switch(switch12).
+Switch(switch13).
+Segment(segment25).
+Segment(segment27).
+Segment(segment28).
+Segment(segment29).
+Segment(segment30).
+Segment(segment31).
+Segment(segment32).
+Switch(switch14).
+Segment(segment33).
+Segment(segment34).
+Switch(switch15).
+Segment(segment35).
+straight(segment2, segment15).
+straight(segment7, segment5).
+straight(segment8, segment12).
+straight(switch1, segment3).
+straight(switch2, segment3).
+straight(segment10, switch1).
+straight(switch3, segment9).
+straight(switch5, switch8).
+straight(segment12, switch14).
+straight(switch6, segment11).
+straight(switch7, segment17).
+straight(segment18, switch4).
+straight(switch8, segment3).
+straight(switch9, segment9).
+straight(switch10, segment18).
+straight(switch11, switch5).
+straight(switch12, segment3).
+straight(switch13, segment5).
+straight(switch14, switch12).
+straight(switch15, switch10).
+diverging(segment3, segment1).
+diverging(segment7, segment9).
+diverging(switch1, segment4).
+diverging(segment10, segment14).
+diverging(switch3, segment6).
+diverging(switch4, segment8).
+diverging(segment12, segment2).
+diverging(switch6, segment8).
+diverging(switch7, segment9).
+diverging(segment18, segment1).
+diverging(switch8, switch4).
+diverging(switch9, segment8).
+diverging(switch11, segment21).
+diverging(switch12, segment13).
+diverging(switch13, segment12).
+diverging(switch14, segment12).
+diverging(switch15, segment9).
+connectsTo(segment1, switch3).
+connectsTo(segment1, switch4).
+connectsTo(segment2, switch1).
+connectsTo(segment2, switch7).
+connectsTo(segment2, segment30).
+connectsTo(segment3, switch2).
+connectsTo(segment3, switch5).
+connectsTo(segment3, segment23).
+connectsTo(segment4, switch3).
+connectsTo(segment5, switch2).
+connectsTo(segment5, switch4).
+connectsTo(segment6, segment12).
+connectsTo(segment6, switch6).
+connectsTo(segment7, switch5).
+connectsTo(segment7, switch6).
+connectsTo(segment7, segment14).
+connectsTo(segment8, switch3).
+connectsTo(segment8, switch6).
+connectsTo(segment8, segment30).
+connectsTo(segment9, switch1).
+connectsTo(segment9, segment15).
+connectsTo(switch1, segment2).
+connectsTo(switch1, segment4).
+connectsTo(switch1, segment9).
+connectsTo(switch2, segment3).
+connectsTo(switch2, segment5).
+connectsTo(switch2, segment10).
+connectsTo(segment10, switch2).
+connectsTo(segment10, switch4).
+connectsTo(segment10, segment17).
+connectsTo(switch3, segment1).
+connectsTo(switch3, segment4).
+connectsTo(switch3, segment8).
+connectsTo(switch4, segment1).
+connectsTo(switch4, segment5).
+connectsTo(segment11, switch5).
+connectsTo(segment11, segment15).
+connectsTo(switch5, segment3).
+connectsTo(switch5, segment7).
+connectsTo(switch5, segment11).
+connectsTo(segment12, segment6).
+connectsTo(segment12, switch7).
+connectsTo(segment12, segment34).
+connectsTo(segment13, switch7).
+connectsTo(segment13, segment14).
+connectsTo(switch6, segment6).
+connectsTo(switch6, segment8).
+connectsTo(switch7, segment2).
+connectsTo(switch7, segment12).
+connectsTo(switch7, segment13).
+connectsTo(segment14, segment7).
+connectsTo(segment14, segment13).
+connectsTo(segment15, segment9).
+connectsTo(segment15, segment11).
+connectsTo(segment16, switch8).
+connectsTo(segment16, switch9).
+connectsTo(segment17, segment10).
+connectsTo(segment17, segment18).
+connectsTo(segment18, segment17).
+connectsTo(segment18, switch8).
+connectsTo(switch8, segment16).
+connectsTo(switch8, segment18).
+connectsTo(switch9, segment16).
+connectsTo(switch9, segment19).
+connectsTo(switch9, segment21).
+connectsTo(segment19, switch9).
+connectsTo(segment20, switch8).
+connectsTo(segment20, switch10).
+connectsTo(segment21, switch9).
+connectsTo(segment21, segment19).
+connectsTo(switch10, segment20).
+connectsTo(switch10, segment24).
+connectsTo(segment22, switch11).
+connectsTo(segment23, segment3).
+connectsTo(switch11, segment22).
+connectsTo(switch11, segment24).
+connectsTo(switch11, switch12).
+connectsTo(switch12, segment18).
+connectsTo(switch12, switch11).
+connectsTo(switch12, segment25).
+connectsTo(switch13, segment23).
+connectsTo(switch13, segment26).
+connectsTo(segment25, switch12).
+connectsTo(segment25, segment28).
+connectsTo(segment26, switch13).
+connectsTo(segment26, segment29).
+connectsTo(segment27, switch13).
+connectsTo(segment27, segment29).
+connectsTo(segment28, segment25).
+connectsTo(segment28, switch14).
+connectsTo(segment29, segment26).
+connectsTo(segment29, segment27).
+connectsTo(segment30, segment2).
+connectsTo(segment30, segment8).
+connectsTo(segment31, segment32).
+connectsTo(segment31, switch14).
+connectsTo(segment32, segment31).
+connectsTo(segment32, switch14).
+connectsTo(switch14, segment28).
+connectsTo(switch14, segment31).
+connectsTo(switch14, segment32).
+connectsTo(segment33, switch15).
+connectsTo(segment34, segment12).
+connectsTo(switch15, segment35).
+connectsTo(segment35, switch15).

@@ -1,0 +1,96 @@
+import builtin::view.
+
+
+class State {
+}
+atom idle,seeding.
+
+class Transition {
+    Label[1] label 
+    State[1] source
+    State[1] target
+}
+
+enum Label {
+    CANCEL, START, SHARE, RESTART, COMPLETED, PEERSDONE
+}
+
+@show
+error pred HC1(t1, t2) <->
+    label(t1,l),
+    label(t2,l),
+    t1 != t2,
+    source(t1, s),
+    source(t2, s).
+
+@show
+error pred HC2(s) <->
+    State(s),
+    !source(_, s).
+
+pred hasTransition(s1, s2) <->
+    source(t, s1),
+    target(t, s2).
+    
+@show
+error pred SC1(i, s) <->
+    i == idle,
+    s  == seeding,
+    !hasTransition(i, s).
+
+pred hasCancle(s) <->
+    source(t, s),
+    target(t, i),
+    label(t,CANCEL),
+    i == idle.    
+
+@show
+error pred SC2(s) <->
+    State(s),
+    !hasCancle(s).
+
+declare state1, transition1, transition2, transition3, transition4,
+	transition5, transition6, transition7, transition8, transition9,
+	transition10, transition11.
+State(idle).
+State(seeding).
+State(state1).
+Transition(transition1).
+Transition(transition2).
+Transition(transition3).
+Transition(transition4).
+Transition(transition6).
+Transition(transition7).
+Transition(transition8).
+Transition(transition9).
+Transition(transition11).
+label(transition1, CANCEL).
+label(transition2, COMPLETED).
+label(transition3, CANCEL).
+label(transition4, PEERSDONE).
+label(transition5, RESTART).
+label(transition6, START).
+label(transition8, SHARE).
+label(transition9, CANCEL).
+label(transition10, SHARE).
+label(transition11, RESTART).
+source(transition1, seeding).
+source(transition2, seeding).
+source(transition3, idle).
+source(transition4, state1).
+source(transition5, seeding).
+source(transition6, idle).
+source(transition7, state1).
+source(transition8, state1).
+source(transition9, state1).
+source(transition10, seeding).
+source(transition11, idle).
+target(transition1, idle).
+target(transition2, state1).
+target(transition3, idle).
+target(transition4, state1).
+target(transition5, seeding).
+target(transition7, state1).
+target(transition9, idle).
+target(transition10, seeding).
+target(transition11, state1).

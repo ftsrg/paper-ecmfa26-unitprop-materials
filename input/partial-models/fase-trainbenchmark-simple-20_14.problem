@@ -1,0 +1,175 @@
+import builtin::view.
+
+@color(hex="#ffffff")
+abstract class TrackElement {
+    TrackElement[1..3] connectsTo opposite connectsTo
+    Sensor[] monitoredBy opposite monitors
+}
+
+@color(hex="#218380")
+class Segment extends TrackElement {
+}
+
+@color(hex="#8f2d56")
+class Switch extends TrackElement {
+    TrackElement straight
+    TrackElement diverging
+}
+class Sensor {
+    TrackElement[] monitors opposite monitoredBy
+}
+class Region {
+    contains Sensor[] sensors
+    contains TrackElement[] elements
+}
+
+
+error sameStraightDiverging(switch, target) <->
+    straight(switch,target),
+    diverging(switch,target).
+
+error noDiverging(switch) <->
+    Switch(switch),
+    !diverging(switch,_).
+
+error noStraight(switch) <->
+    Switch(switch),
+    !straight(switch,_).
+
+error tooManyConncetions(segment) <->
+    Segment(segment),
+    count{connectsTo(segment, _)} > 2.
+
+
+error selfLoop(e) <->
+    TrackElement(e),
+    connectsTo(e, e)
+;
+    Switch(e),
+    straight(e, e)
+;
+    Switch(e),
+    diverging(e, e).
+
+
+error underconnectedSwitch(sw) <->
+    Switch(sw),
+    !switchWithTwoConnections(sw, _, _).
+
+pred switchWithTwoConnections(sw, te1, te2) <->
+    Switch(sw),
+    connectsTo(sw, te1),
+    connectsTo(sw, te2),
+    te1 != te2.
+
+
+error sensorWithoutElement(sensor) <->
+    Sensor(sensor),
+    !monitors(sensor, _).
+
+error sensorMonitorsMultipleSwitches(sensor, sw1, sw2) <->
+    Sensor(sensor),
+    monitors(sensor, sw1),
+    monitors(sensor, sw2),
+    Switch(sw1),
+    Switch(sw2),
+    sw1 != sw2.
+
+error duplicateMonitors(region, sensor1, sensor2, te) <->
+    Region(region),
+    sensors(region, sensor1),
+    sensors(region, sensor2),
+    sensor1 != sensor2,
+    monitors(sensor1, te),
+    monitors(sensor2, te).
+
+error emptyRegion(region) <->
+    Region(region),
+    !elements(region, _).
+
+
+error connectedSegments(sensor, segment1, segment2, segment3, segment4, segment5, segment6) <->
+    connectsTo(segment1, segment2),
+    connectsTo(segment2, segment3),
+    connectsTo(segment3, segment4),
+    connectsTo(segment4, segment5),
+    connectsTo(segment5, segment6),
+    monitoredBy(segment1, sensor),
+    monitoredBy(segment2, sensor),
+    monitoredBy(segment3, sensor),
+    monitoredBy(segment4, sensor),
+    monitoredBy(segment5, sensor),
+    monitoredBy(segment6, sensor).
+
+
+error switchMonitored(sw) <-> 
+    Switch(sw),
+    !monitoredBy(sw, _).
+
+declare region1, sensor1, region2, region3, segment1, sensor2, region4,
+	sensor3, sensor4, switch1, switch2, sensor5, sensor6, segment2, segment3,
+	region5, sensor7, segment4, sensor8, segment5.
+Region(region1).
+Sensor(sensor1).
+Region(region2).
+Region(region3).
+Segment(segment1).
+Sensor(sensor2).
+Region(region4).
+Sensor(sensor3).
+Sensor(sensor4).
+Switch(switch1).
+Switch(switch2).
+Sensor(sensor5).
+Segment(segment2).
+Segment(segment3).
+Region(region5).
+Sensor(sensor7).
+Segment(segment4).
+Sensor(sensor8).
+Segment(segment5).
+sensors(region1, sensor1).
+sensors(region1, sensor6).
+sensors(region2, sensor2).
+sensors(region2, sensor8).
+sensors(region3, sensor4).
+sensors(region3, sensor5).
+sensors(region3, sensor7).
+elements(region1, segment1).
+elements(region2, segment2).
+elements(region3, switch1).
+elements(region4, switch2).
+elements(region5, segment5).
+monitoredBy(segment1, sensor1).
+monitoredBy(segment1, sensor2).
+monitoredBy(segment1, sensor5).
+monitoredBy(switch1, sensor1).
+monitoredBy(switch1, sensor3).
+monitoredBy(switch2, sensor4).
+monitoredBy(segment2, sensor6).
+monitoredBy(segment2, sensor7).
+monitoredBy(segment2, sensor8).
+monitoredBy(segment3, sensor1).
+monitoredBy(segment3, sensor2).
+monitoredBy(segment3, sensor7).
+straight(switch2, segment3).
+diverging(switch1, segment2).
+diverging(switch2, segment1).
+connectsTo(segment1, switch2).
+connectsTo(switch1, segment2).
+connectsTo(switch1, segment4).
+connectsTo(switch1, segment5).
+connectsTo(switch2, segment1).
+connectsTo(switch2, segment2).
+connectsTo(switch2, segment3).
+connectsTo(segment2, switch1).
+connectsTo(segment2, switch2).
+connectsTo(segment4, switch1).
+connectsTo(segment5, switch1).
+
+default !connectsTo(*, *).
+?connectsTo(*, Segment::new).
+?connectsTo(Segment::new, *).
+
+default !monitoredBy(*, *).
+?monitoredBy(Sensor::new, *).

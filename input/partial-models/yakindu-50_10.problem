@@ -1,0 +1,211 @@
+
+abstract class CompositeElement {
+    contains Region[] regions
+}
+
+class Region {
+    contains Vertex[] vertices opposite region
+}
+
+abstract class Vertex {
+    container Region region opposite vertices
+    contains Transition[] outgoingTransition opposite source
+    Transition[] incomingTransition opposite target
+}
+
+class Transition {
+    container Vertex source opposite outgoingTransition
+    Vertex[1] target opposite incomingTransition
+}
+
+abstract class Pseudostate extends Vertex.
+
+abstract class RegularState extends Vertex.
+
+class Entry extends Pseudostate.
+
+class Exit extends Pseudostate.
+
+class Choice extends Pseudostate.
+
+class FinalState extends RegularState.
+
+class State extends RegularState, CompositeElement.
+
+class Statechart extends CompositeElement.
+
+
+
+pred entryInRegion(r, Entry e) <->
+    vertices(r, e).
+
+error noEntryInRegion(Region r) <->
+    !entryInRegion(r, _).
+
+error multipleEntryInRegion(r) <->
+    Entry(e1),
+    Entry(e2),
+    vertices(r, e1),
+    vertices(r, e2),
+    e1 != e2.
+
+error incomingToEntry(t, Entry e) <->
+    target(t, e).
+
+error noOutgoingTransitionFromEntry(Entry e) <->
+    !source(_, e).
+
+error multipleTransitionFromEntry(Entry e, t1, t2) <->
+    outgoingTransition(e, t1),
+    outgoingTransition(e, t2),
+    t1 != t2.
+
+
+error outgoingFromExit(t, Exit e) <->
+    source(t, e).
+
+
+error outgoingFromFinal(t, FinalState e) <->
+    source(t, e).
+
+
+pred stateInRegion(r, State s) <->
+    vertices(r, s).
+
+error noStateInRegion(Region r) <->
+    !stateInRegion(r, _).
+
+
+error choiceHasNoOutgoing(Choice c) <->
+    !source(_, c).
+
+error choiceHasNoIncoming(Choice c) <->
+    !target(_, c).
+
+declare sct, state1, region1, choice1, region2, state2, finalState1, entry1,
+	finalState2, exit1, transition1, transition2, entry2, state3, state4,
+	state5, transition3, finalState3, transition4, state6, finalState4,
+	state7, finalState5, transition5.
+declare transition6, region3, transition7, transition8, finalState6, entry3.
+declare transition9, state8, finalState7, state9, finalState8, transition10.
+declare transition11, region4, state10, entry4, exit2, transition12.
+declare state11, exit3, transition13.
+declare state12, exit4, exit5, region5, state13, state14, entry5,
+	transition14, transition15.
+declare finalState9, transition16, state15.
+Statechart(sct).
+FinalState(state1).
+Region(region1).
+Choice(choice1).
+Region(region2).
+State(state2).
+FinalState(finalState1).
+Entry(entry1).
+FinalState(finalState2).
+State(exit1).
+Transition(transition1).
+Transition(transition2).
+State(state4).
+Transition(transition3).
+FinalState(finalState3).
+Transition(transition4).
+State(state6).
+State(finalState4).
+State(state7).
+Choice(finalState5).
+Transition(transition5).
+Transition(transition6).
+Region(region3).
+Transition(transition8).
+State(finalState6).
+Entry(entry3).
+Transition(transition9).
+State(state8).
+Choice(finalState7).
+Exit(state9).
+FinalState(finalState8).
+Transition(transition10).
+Transition(transition11).
+Region(region4).
+State(state10).
+Entry(entry4).
+Exit(exit2).
+Transition(transition12).
+State(state11).
+Transition(transition13).
+State(state12).
+Exit(exit4).
+Exit(exit5).
+Region(region5).
+State(state13).
+State(state14).
+Entry(entry5).
+Transition(transition14).
+FinalState(finalState9).
+Transition(transition16).
+State(state15).
+regions(sct, region1).
+regions(state6, region3).
+regions(finalState4, region4).
+regions(state10, region5).
+vertices(region1, choice1).
+vertices(region1, state2).
+vertices(region1, finalState2).
+vertices(region1, exit1).
+vertices(region1, entry2).
+vertices(region1, state3).
+vertices(region1, state12).
+vertices(region2, state1).
+vertices(region2, finalState3).
+vertices(region2, state6).
+vertices(region2, finalState4).
+vertices(region2, finalState5).
+vertices(region2, state10).
+vertices(region2, exit3).
+vertices(region2, state14).
+vertices(region2, finalState9).
+vertices(region3, finalState1).
+vertices(region3, state4).
+vertices(region3, entry3).
+vertices(region3, state9).
+vertices(region3, finalState8).
+vertices(region3, exit5).
+vertices(region3, state13).
+vertices(region4, state5).
+vertices(region4, state8).
+vertices(region4, entry4).
+vertices(region4, exit2).
+vertices(region4, state11).
+vertices(region4, exit4).
+vertices(region5, entry5).
+vertices(region5, state15).
+outgoingTransition(choice1, transition12).
+outgoingTransition(entry1, transition13).
+outgoingTransition(state4, transition2).
+outgoingTransition(state4, transition3).
+outgoingTransition(state7, transition1).
+outgoingTransition(finalState5, transition7).
+outgoingTransition(finalState5, transition10).
+outgoingTransition(finalState6, transition5).
+outgoingTransition(entry3, transition9).
+outgoingTransition(finalState7, transition14).
+outgoingTransition(state10, transition4).
+outgoingTransition(state10, transition8).
+outgoingTransition(entry4, transition11).
+outgoingTransition(entry5, transition15).
+incomingTransition(state1, transition13).
+incomingTransition(choice1, transition7).
+incomingTransition(finalState2, transition2).
+incomingTransition(finalState2, transition5).
+incomingTransition(state4, transition4).
+incomingTransition(state6, transition8).
+incomingTransition(finalState4, transition14).
+incomingTransition(state7, transition16).
+incomingTransition(finalState5, transition9).
+incomingTransition(finalState5, transition12).
+incomingTransition(state8, transition10).
+incomingTransition(finalState7, transition1).
+incomingTransition(finalState7, transition3).
+incomingTransition(finalState7, transition6).
+incomingTransition(finalState8, transition15).
+incomingTransition(state10, transition11).

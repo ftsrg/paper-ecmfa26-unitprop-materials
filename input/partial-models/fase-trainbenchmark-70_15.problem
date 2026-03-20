@@ -1,0 +1,485 @@
+class RailwayContainer {
+    contains Route[] routes
+    contains Region[] regions
+}
+class Region {
+    contains Sensor[] sensors
+    contains TrackElement elements
+}
+class Semaphore {
+    Signal signal
+}
+class Route {
+    contains SwitchPosition[] follows opposite route
+    Sensor[2..*] requires
+    Semaphore entry
+    Semaphore exit
+    boolean active
+}
+class SwitchPosition {
+    container Route route opposite follows
+    Switch[1] target opposite positions
+    Position position
+}
+abstract class TrackElement {
+    Sensor[] monitoredBy opposite monitors
+    TrackElement[] connectsTo
+}
+class Sensor {
+    TrackElement[] monitors opposite monitoredBy
+}
+class Segment extends TrackElement {
+    contains Semaphore[] semaphores
+    int length
+}
+class Switch extends TrackElement {
+    SwitchPosition[] positions opposite target
+    Position currentPosition
+    TrackElement straight
+    TrackElement diverging
+}
+enum Position {
+    FAILURE,
+    STRAIGHT,
+    DIVERGING
+}
+enum Signal {
+    FAILURE,
+    STOP,
+    GO
+}
+
+
+error sameStraightDiverging(switch, target) <->
+    straight(switch,target),
+    diverging(switch,target).
+
+error noDiverging(switch) <->
+    Switch(switch),
+    !diverging(switch,_).
+
+error noStraight(switch) <->
+    Switch(switch),
+    !straight(switch,_).
+
+error tooManyConncetions(segment) <->
+    Segment(segment),
+    count{connectsTo(segment, _)} > 2.
+
+
+error selfLoop(e) <->
+    TrackElement(e),
+    connectsTo(e, e)
+;
+    Switch(e),
+    straight(e, e)
+;
+    Switch(e),
+    diverging(e, e).
+
+
+error underconnectedSwitch(sw) <->
+    Switch(sw),
+    !switchWithTwoConnections(sw, _, _).
+
+pred switchWithTwoConnections(sw, te1, te2) <->
+    Switch(sw),
+    connectsTo(sw, te1),
+    connectsTo(sw, te2),
+    te1 != te2.
+
+
+error sensorWithoutElement(sensor) <->
+    Sensor(sensor),
+    !monitors(sensor, _).
+
+error sensorMonitorsMultipleSwitches(sensor, sw1, sw2) <->
+    Sensor(sensor),
+    monitors(sensor, sw1),
+    monitors(sensor, sw2),
+    Switch(sw1),
+    Switch(sw2),
+    sw1 != sw2.
+
+error duplicateMonitors(region, sensor1, sensor2, te) <->
+    Region(region),
+    sensors(region, sensor1),
+    sensors(region, sensor2),
+    sensor1 != sensor2,
+    monitors(sensor1, te),
+    monitors(sensor2, te).
+
+error emptyRegion(region) <->
+    Region(region),
+    !elements(region, _).
+
+
+error posLength(segment) <->
+    Segment(segment),
+    length(segment) <= 0.
+
+error switchMonitored(sw) <-> 
+    Switch(sw),
+    !monitoredBy(sw, _).
+
+
+error routeSensor(route, sensor, swP, sw) <->
+    monitoredBy(sw, sensor),
+    target(swP, sw),
+    follows(route, swP),
+    !requires(route, sensor).
+
+error switchSet(semaphore, route, swP, sw) <->
+    active(route),
+    entry(route, semaphore),
+    follows(route, swP),
+    target(swP, sw),
+
+    signal(semaphore, GO),
+    position(swP, swpPosition),
+    currentPosition(sw, swCurrentPosition),
+    swCurrentPosition != swpPosition.
+
+
+
+error connectedSegments(sensor, segment1, segment2, segment3, segment4, segment5, segment6) <->
+    connectsTo(segment1, segment2),
+    connectsTo(segment2, segment3),
+    connectsTo(segment3, segment4),
+    connectsTo(segment4, segment5),
+    connectsTo(segment5, segment6),
+    monitoredBy(segment1, sensor),
+    monitoredBy(segment2, sensor),
+    monitoredBy(segment3, sensor),
+    monitoredBy(segment4, sensor),
+    monitoredBy(segment5, sensor),
+    monitoredBy(segment6, sensor).
+
+error semaphoreNeighbor(route1, route2) <->
+    exit(route1, semaphore),
+    requires(route1, sensor1),
+    monitoredBy(te1, sensor1),
+    connectsTo(te1, te2),
+    monitoredBy(te2, sensor2),
+    requires(route2, sensor2),
+    !entry(route2, semaphore),
+    route1 != route2.
+
+declare railwayContainer1, sensor1, segment1, region1, segment2, region2,
+	semaphore1, sensor2, switch1, semaphore2, sensor3, sensor4, region3,
+	sensor5, switch2, semaphore3, region4, semaphore4.
+declare sensor6, semaphore5, region5, segment3, region6, switch3.
+declare semaphore6.
+declare region7, switch4, sensor7, sensor8, semaphore7, semaphore8, segment4,
+	region8, semaphore9, semaphore10, semaphore11.
+declare semaphore12, semaphore13, semaphore14.
+declare region9, segment5, semaphore15, semaphore16, region10, sensor9,
+	semaphore17, switch5, semaphore18.
+declare region11, switch6, semaphore19, semaphore20, region12, segment6,
+	semaphore21, sensor10, semaphore22, semaphore23, semaphore24, semaphore25.
+declare region13, segment7, semaphore26, semaphore27, region14, switch7,
+	semaphore28, sensor11, semaphore29, semaphore30, semaphore31, semaphore32.
+RailwayContainer(railwayContainer1).
+Sensor(sensor1).
+Segment(segment1).
+Region(region1).
+Segment(segment2).
+Region(region2).
+Semaphore(semaphore1).
+Sensor(sensor2).
+Semaphore(semaphore2).
+Sensor(sensor3).
+Sensor(sensor4).
+Region(region3).
+Sensor(sensor5).
+Switch(switch2).
+Semaphore(semaphore3).
+Region(region4).
+Semaphore(semaphore4).
+Sensor(sensor6).
+Semaphore(semaphore5).
+Region(region5).
+Segment(segment3).
+Region(region6).
+Switch(switch3).
+Semaphore(semaphore6).
+Region(region7).
+Switch(switch4).
+Sensor(sensor7).
+Sensor(sensor8).
+Semaphore(semaphore7).
+Segment(segment4).
+Semaphore(semaphore9).
+Semaphore(semaphore10).
+Semaphore(semaphore11).
+Semaphore(semaphore13).
+Region(region9).
+Segment(segment5).
+Semaphore(semaphore15).
+Semaphore(semaphore16).
+Region(region10).
+Sensor(sensor9).
+Semaphore(semaphore17).
+Switch(switch5).
+Semaphore(semaphore18).
+Region(region11).
+Switch(switch6).
+Semaphore(semaphore19).
+Semaphore(semaphore20).
+Region(region12).
+Segment(segment6).
+Semaphore(semaphore21).
+Sensor(sensor10).
+Semaphore(semaphore22).
+Semaphore(semaphore23).
+Semaphore(semaphore24).
+Semaphore(semaphore25).
+Region(region13).
+Segment(segment7).
+Semaphore(semaphore26).
+Region(region14).
+Switch(switch7).
+Semaphore(semaphore28).
+Semaphore(semaphore29).
+Semaphore(semaphore30).
+Semaphore(semaphore31).
+Semaphore(semaphore32).
+regions(railwayContainer1, region1).
+regions(railwayContainer1, region2).
+regions(railwayContainer1, region3).
+regions(railwayContainer1, region4).
+regions(railwayContainer1, region5).
+regions(railwayContainer1, region6).
+regions(railwayContainer1, region7).
+regions(railwayContainer1, region8).
+regions(railwayContainer1, region9).
+regions(railwayContainer1, region10).
+regions(railwayContainer1, region11).
+regions(railwayContainer1, region12).
+regions(railwayContainer1, region13).
+regions(railwayContainer1, region14).
+sensors(region1, sensor1).
+sensors(region1, sensor3).
+sensors(region2, sensor2).
+sensors(region2, sensor6).
+sensors(region2, sensor7).
+sensors(region4, sensor8).
+sensors(region7, sensor10).
+sensors(region12, sensor11).
+sensors(region14, sensor5).
+elements(region1, segment7).
+elements(region2, switch1).
+elements(region3, switch6).
+elements(region4, segment2).
+elements(region5, segment3).
+elements(region6, switch3).
+elements(region7, switch4).
+elements(region8, switch2).
+elements(region9, segment5).
+elements(region10, switch5).
+elements(region11, segment4).
+elements(region12, segment6).
+elements(region13, segment1).
+elements(region14, switch7).
+semaphores(segment1, semaphore9).
+semaphores(segment1, semaphore11).
+semaphores(segment1, semaphore15).
+semaphores(segment1, semaphore21).
+semaphores(segment1, semaphore22).
+semaphores(segment2, semaphore1).
+semaphores(segment2, semaphore2).
+semaphores(segment2, semaphore5).
+semaphores(segment2, semaphore6).
+semaphores(segment2, semaphore14).
+semaphores(segment2, semaphore23).
+semaphores(segment2, semaphore27).
+semaphores(segment2, semaphore28).
+semaphores(segment2, semaphore29).
+semaphores(segment2, semaphore30).
+semaphores(segment3, semaphore7).
+semaphores(segment3, semaphore8).
+semaphores(segment3, semaphore12).
+semaphores(segment3, semaphore16).
+semaphores(segment3, semaphore24).
+semaphores(segment4, semaphore10).
+semaphores(segment4, semaphore13).
+semaphores(segment4, semaphore17).
+semaphores(segment4, semaphore18).
+semaphores(segment4, semaphore26).
+semaphores(segment4, semaphore31).
+semaphores(segment5, semaphore3).
+semaphores(segment5, semaphore19).
+semaphores(segment5, semaphore20).
+semaphores(segment6, semaphore25).
+semaphores(segment7, semaphore32).
+signal(semaphore1, Signal::FAILURE).
+signal(semaphore2, GO).
+signal(semaphore3, Signal::FAILURE).
+signal(semaphore6, GO).
+signal(semaphore7, Signal::FAILURE).
+signal(semaphore9, GO).
+signal(semaphore11, GO).
+signal(semaphore12, Signal::FAILURE).
+signal(semaphore13, GO).
+signal(semaphore16, GO).
+signal(semaphore17, STOP).
+signal(semaphore18, GO).
+signal(semaphore19, STOP).
+signal(semaphore20, GO).
+signal(semaphore21, GO).
+signal(semaphore22, GO).
+signal(semaphore24, GO).
+signal(semaphore25, GO).
+signal(semaphore26, Signal::FAILURE).
+signal(semaphore28, STOP).
+signal(semaphore29, Signal::FAILURE).
+signal(semaphore31, GO).
+signal(semaphore32, GO).
+monitoredBy(segment1, sensor2).
+monitoredBy(segment1, sensor4).
+monitoredBy(segment1, sensor8).
+monitoredBy(segment1, sensor9).
+monitoredBy(segment1, sensor10).
+monitoredBy(segment2, sensor1).
+monitoredBy(segment2, sensor2).
+monitoredBy(segment2, sensor5).
+monitoredBy(segment2, sensor8).
+monitoredBy(segment2, sensor9).
+monitoredBy(segment2, sensor11).
+monitoredBy(switch1, sensor9).
+monitoredBy(switch2, sensor2).
+monitoredBy(switch2, sensor5).
+monitoredBy(switch2, sensor8).
+monitoredBy(segment3, sensor3).
+monitoredBy(segment3, sensor5).
+monitoredBy(segment3, sensor6).
+monitoredBy(segment3, sensor8).
+monitoredBy(segment3, sensor9).
+monitoredBy(segment3, sensor10).
+monitoredBy(switch3, sensor6).
+monitoredBy(switch4, sensor3).
+monitoredBy(segment4, sensor4).
+monitoredBy(segment4, sensor5).
+monitoredBy(segment4, sensor7).
+monitoredBy(segment4, sensor8).
+monitoredBy(segment4, sensor10).
+monitoredBy(segment5, sensor2).
+monitoredBy(segment5, sensor8).
+monitoredBy(segment5, sensor11).
+monitoredBy(switch5, sensor4).
+monitoredBy(switch5, sensor7).
+monitoredBy(segment6, sensor5).
+monitoredBy(segment6, sensor6).
+monitoredBy(segment6, sensor9).
+monitoredBy(segment6, sensor10).
+monitoredBy(segment6, sensor11).
+monitoredBy(segment7, sensor2).
+monitoredBy(segment7, sensor3).
+monitoredBy(segment7, sensor5).
+monitoredBy(segment7, sensor10).
+monitoredBy(switch7, sensor11).
+connectsTo(segment1, segment2).
+connectsTo(segment2, switch3).
+connectsTo(segment2, switch4).
+connectsTo(switch1, segment1).
+connectsTo(switch1, segment2).
+connectsTo(switch1, segment3).
+connectsTo(switch1, switch3).
+connectsTo(switch1, segment4).
+connectsTo(switch1, segment5).
+connectsTo(switch1, switch5).
+connectsTo(switch1, switch6).
+connectsTo(switch1, segment6).
+connectsTo(switch2, segment1).
+connectsTo(switch2, segment2).
+connectsTo(switch2, switch1).
+connectsTo(switch2, segment3).
+connectsTo(switch2, switch4).
+connectsTo(switch2, segment5).
+connectsTo(switch2, switch5).
+connectsTo(switch2, switch6).
+connectsTo(switch2, segment6).
+connectsTo(switch2, segment7).
+connectsTo(switch2, switch7).
+connectsTo(segment3, segment1).
+connectsTo(switch3, segment2).
+connectsTo(switch3, switch1).
+connectsTo(switch3, switch2).
+connectsTo(switch3, segment3).
+connectsTo(switch3, switch4).
+connectsTo(switch3, segment4).
+connectsTo(switch3, segment5).
+connectsTo(switch3, switch5).
+connectsTo(switch3, switch6).
+connectsTo(switch3, segment6).
+connectsTo(switch3, segment7).
+connectsTo(switch3, switch7).
+connectsTo(switch4, segment2).
+connectsTo(switch4, segment3).
+connectsTo(switch4, switch3).
+connectsTo(switch4, segment4).
+connectsTo(switch4, segment5).
+connectsTo(switch4, switch5).
+connectsTo(switch4, switch6).
+connectsTo(switch4, segment6).
+connectsTo(segment4, switch2).
+connectsTo(segment4, switch4).
+connectsTo(segment5, segment1).
+connectsTo(segment5, switch6).
+connectsTo(switch5, segment1).
+connectsTo(switch5, switch1).
+connectsTo(switch5, switch2).
+connectsTo(switch5, switch3).
+connectsTo(switch5, segment4).
+connectsTo(switch5, segment5).
+connectsTo(switch5, switch6).
+connectsTo(switch5, segment6).
+connectsTo(switch5, segment7).
+connectsTo(switch6, switch3).
+connectsTo(switch6, switch4).
+connectsTo(switch6, switch5).
+connectsTo(switch6, segment6).
+connectsTo(segment6, segment2).
+connectsTo(segment6, segment5).
+connectsTo(segment7, switch5).
+connectsTo(segment7, switch6).
+connectsTo(switch7, segment1).
+connectsTo(switch7, segment2).
+connectsTo(switch7, switch1).
+connectsTo(switch7, segment3).
+connectsTo(switch7, switch3).
+connectsTo(switch7, switch4).
+connectsTo(switch7, segment6).
+currentPosition(switch1, DIVERGING).
+currentPosition(switch2, Position::FAILURE).
+currentPosition(switch3, DIVERGING).
+currentPosition(switch4, Position::FAILURE).
+currentPosition(switch5, STRAIGHT).
+currentPosition(switch6, DIVERGING).
+currentPosition(switch7, DIVERGING).
+straight(switch1, segment1).
+straight(switch2, switch3).
+straight(switch3, segment2).
+straight(switch4, segment4).
+straight(switch5, switch4).
+straight(switch6, segment4).
+straight(switch7, switch3).
+diverging(switch1, segment2).
+diverging(switch3, segment1).
+diverging(switch4, switch1).
+diverging(switch5, switch2).
+diverging(switch6, segment1).
+?length(segment1).
+?length(segment2).
+?length(segment3).
+?length(segment4).
+?length(segment5).
+?length(segment6).
+?length(segment7).
+
+default !connectsTo(*, *).
+?connectsTo(*, Segment::new).
+?connectsTo(Segment::new, *).
+
+default !monitoredBy(*, *).
+?monitoredBy(Sensor::new, *).

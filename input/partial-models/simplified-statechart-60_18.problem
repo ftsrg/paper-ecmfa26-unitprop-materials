@@ -1,0 +1,236 @@
+import builtin::view.
+
+
+class State {
+}
+atom idle,seeding.
+
+class Transition {
+    Label[1] label 
+    State[1] source
+    State[1] target
+}
+
+enum Label {
+    CANCEL, START, SHARE, RESTART, COMPLETED, PEERSDONE
+}
+
+@show
+error pred HC1(t1, t2) <->
+    label(t1,l),
+    label(t2,l),
+    t1 != t2,
+    source(t1, s),
+    source(t2, s).
+
+@show
+error pred HC2(s) <->
+    State(s),
+    !source(_, s).
+
+pred hasTransition(s1, s2) <->
+    source(t, s1),
+    target(t, s2).
+    
+@show
+error pred SC1(i, s) <->
+    i == idle,
+    s  == seeding,
+    !hasTransition(i, s).
+
+pred hasCancle(s) <->
+    source(t, s),
+    target(t, i),
+    label(t,CANCEL),
+    i == idle.    
+
+@show
+error pred SC2(s) <->
+    State(s),
+    !hasCancle(s).
+
+declare transition1, transition2, transition3, transition4, transition5,
+	transition6, transition7, transition8, transition9, transition10,
+	transition11, transition12, state1, transition13.
+declare transition14, transition15, transition16.
+declare transition17, transition18, transition19, transition20, state2.
+declare transition21, transition22, transition23, transition24, transition25,
+	state3.
+declare transition26, transition27, transition28, transition29.
+declare transition30, transition31, transition32, state4, transition33,
+	transition34, transition35.
+declare transition36, transition37, transition38, transition39, state5.
+declare transition40, transition41, transition42.
+declare transition43, state6, transition44, transition45, transition46.
+State(idle).
+State(seeding).
+Transition(transition1).
+Transition(transition2).
+Transition(transition3).
+Transition(transition4).
+Transition(transition5).
+Transition(transition6).
+Transition(transition7).
+Transition(transition8).
+Transition(transition9).
+Transition(transition10).
+Transition(transition11).
+Transition(transition12).
+Transition(transition13).
+Transition(transition14).
+Transition(transition15).
+Transition(transition16).
+Transition(transition17).
+Transition(transition18).
+Transition(transition19).
+Transition(transition20).
+State(state2).
+Transition(transition21).
+Transition(transition22).
+Transition(transition23).
+Transition(transition24).
+Transition(transition25).
+State(state3).
+Transition(transition26).
+Transition(transition27).
+Transition(transition29).
+Transition(transition30).
+Transition(transition31).
+State(state4).
+Transition(transition34).
+Transition(transition35).
+Transition(transition36).
+Transition(transition38).
+Transition(transition39).
+State(state5).
+Transition(transition40).
+Transition(transition41).
+Transition(transition42).
+Transition(transition43).
+State(state6).
+Transition(transition44).
+Transition(transition45).
+Transition(transition46).
+label(transition1, COMPLETED).
+label(transition2, START).
+label(transition3, SHARE).
+label(transition4, RESTART).
+label(transition5, COMPLETED).
+label(transition6, CANCEL).
+label(transition7, SHARE).
+label(transition8, CANCEL).
+label(transition9, RESTART).
+label(transition10, RESTART).
+label(transition11, PEERSDONE).
+label(transition12, START).
+label(transition13, CANCEL).
+label(transition14, SHARE).
+label(transition16, PEERSDONE).
+label(transition17, COMPLETED).
+label(transition18, START).
+label(transition19, RESTART).
+label(transition20, CANCEL).
+label(transition21, COMPLETED).
+label(transition22, START).
+label(transition23, SHARE).
+label(transition24, PEERSDONE).
+label(transition25, CANCEL).
+label(transition26, PEERSDONE).
+label(transition27, RESTART).
+label(transition28, COMPLETED).
+label(transition29, START).
+label(transition30, PEERSDONE).
+label(transition31, SHARE).
+label(transition33, SHARE).
+label(transition34, COMPLETED).
+label(transition35, CANCEL).
+label(transition36, RESTART).
+label(transition38, SHARE).
+label(transition40, START).
+label(transition41, PEERSDONE).
+label(transition42, COMPLETED).
+label(transition43, START).
+label(transition44, PEERSDONE).
+label(transition45, CANCEL).
+label(transition46, COMPLETED).
+source(transition1, idle).
+source(transition2, seeding).
+source(transition3, state2).
+source(transition4, seeding).
+source(transition5, seeding).
+source(transition7, seeding).
+source(transition8, seeding).
+source(transition9, idle).
+source(transition10, state1).
+source(transition11, idle).
+source(transition12, idle).
+source(transition13, state1).
+source(transition14, state1).
+source(transition15, state2).
+source(transition16, state1).
+source(transition17, state1).
+source(transition18, state1).
+source(transition19, state2).
+source(transition20, state2).
+source(transition21, state4).
+source(transition22, state4).
+source(transition23, idle).
+source(transition24, state3).
+source(transition25, state3).
+source(transition26, seeding).
+source(transition27, state3).
+source(transition29, state3).
+source(transition30, state4).
+source(transition32, state4).
+source(transition33, state4).
+source(transition34, state2).
+source(transition35, state4).
+source(transition36, state5).
+source(transition38, state5).
+source(transition39, state5).
+source(transition40, state5).
+source(transition41, state5).
+source(transition42, state5).
+source(transition43, state6).
+source(transition44, state6).
+source(transition45, state6).
+source(transition46, state6).
+target(transition1, seeding).
+target(transition2, seeding).
+target(transition3, seeding).
+target(transition4, seeding).
+target(transition5, idle).
+target(transition6, idle).
+target(transition9, idle).
+target(transition10, idle).
+target(transition11, state3).
+target(transition12, state1).
+target(transition13, idle).
+target(transition14, idle).
+target(transition15, state1).
+target(transition16, seeding).
+target(transition19, idle).
+target(transition21, state2).
+target(transition22, state2).
+target(transition23, seeding).
+target(transition24, idle).
+target(transition25, idle).
+target(transition26, seeding).
+target(transition27, state3).
+target(transition30, state1).
+target(transition31, state3).
+target(transition32, idle).
+target(transition33, state1).
+target(transition34, state3).
+target(transition35, idle).
+target(transition36, seeding).
+target(transition37, seeding).
+target(transition38, idle).
+target(transition39, idle).
+target(transition40, state4).
+target(transition41, state4).
+target(transition42, seeding).
+target(transition43, idle).
+target(transition44, state3).
+target(transition45, idle).
+target(transition46, state5).
